@@ -1,0 +1,107 @@
+services:
+  postgres:
+    image: pgvector/pgvector:pg15
+    env_file:
+      - .env
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-carbon}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-carbon}
+      POSTGRES_DB: ${POSTGRES_DB:-carbon_intel}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./initdb:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-carbon} -d ${POSTGRES_DB:-carbon_intel}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  pgadmin:
+    image: dpage/pgadmin4:8
+    env_file:
+      - .env
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@local.dev
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  api:
+    build:
+      context: ../apps/api
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${API_DATABASE_URL:-postgresql+psycopg://carbon:carbon@postgres:5432/carbon_intel}
+      CORS_ORIGINS: ${API_CORS_ORIGINS:-http://localhost:3000}
+      STREAMS_DIR: ${STREAMS_DIR:-/data/streams}
+      STATIC_DIR: ${STATIC_DIR:-/data/static}
+      OUTPUTS_DIR: ${OUTPUTS_DIR:-/data/outputs}
+    ports:
+      - "${API_PORT:-8000}:8000"
+    volumes:
+      - ../data:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health').read()"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  pathway_worker:
+    build:
+      context: ../apps/pathway_worker
+    env_file:
+      - .env
+    environment:
+      DATABASE_URL: ${API_DATABASE_URL:-postgresql+psycopg://carbon:carbon@postgres:5432/carbon_intel}
+      PATHWAY_POLL_INTERVAL_MS: ${PATHWAY_POLL_INTERVAL_MS:-1000}
+      STREAMS_DIR: ${STREAMS_DIR:-/data/streams}
+      STATIC_DIR: ${STATIC_DIR:-/data/static}
+      OUTPUTS_DIR: ${OUTPUTS_DIR:-/data/outputs}
+    volumes:
+      - ../data:/data
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  simulator:
+    build:
+      context: ../apps/simulator
+    env_file:
+      - .env
+    environment:
+      STREAMS_DIR: ${STREAMS_DIR:-/data/streams}
+      STATIC_DIR: ${STATIC_DIR:-/data/static}
+      SIM_SPEEDUP: "1.0"
+    volumes:
+      - ../data:/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ../apps/frontend
+      args:
+        NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8000}
+    env_file:
+      - .env
+    environment:
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8000}
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api
+
+volumes:
+  pgdata:
+

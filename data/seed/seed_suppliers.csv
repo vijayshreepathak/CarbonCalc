@@ -1,0 +1,6 @@
+supplier_id,supplier_name,region,state,emissions_intensity_kgco2e_per_unit,intensity_version,last_updated_at
+SUP_TAT_001,Tata Components (Pune),West,MH,2.2,v1,2026-01-01T00:00:00Z
+SUP_MAH_002,Mahindra Gears (Nashik),West,MH,1.8,v1,2026-01-01T00:00:00Z
+SUP_GUJ_003,Gujarat Plastics (Ahmedabad),West,GJ,3.1,v1,2026-01-01T00:00:00Z
+SUP_TN_004,Chennai Metals (Chennai),South,TN,2.6,v1,2026-01-01T00:00:00Z
+

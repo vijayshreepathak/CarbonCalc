@@ -1,0 +1,2 @@
+shipment_id,event_time,period_date,origin_city,origin_state,destination_city,destination_state,mode,distance_km,weight_tons,sku,quantity,supplier_id,facility_id,urgent_flag
+

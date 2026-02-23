@@ -1,0 +1,4 @@
+pathway
+psycopg[binary]==3.2.6
+python-dateutil==2.9.0.post0
+

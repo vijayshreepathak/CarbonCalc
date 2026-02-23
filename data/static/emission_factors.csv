@@ -1,0 +1,7 @@
+factor_key,factor_version,scope,category,mode,unit,ef_value,source
+transport_road_default,v1,3,transport,road,kgco2e_per_ton_km,0.12,Demo default (India proxy)
+transport_rail_default,v1,3,transport,rail,kgco2e_per_ton_km,0.04,Demo default (India proxy)
+transport_sea_default,v1,3,transport,sea,kgco2e_per_ton_km,0.01,Demo default
+transport_air_default,v1,3,transport,air,kgco2e_per_ton_km,0.60,Demo default
+grid_india_avg_2025,v1,2,electricity,grid,kgco2e_per_kwh,0.70,Demo grid factor
+
