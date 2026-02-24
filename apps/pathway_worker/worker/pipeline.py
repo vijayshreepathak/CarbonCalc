@@ -47,43 +47,46 @@ def build_pipeline(cfg: WorkerConfig) -> None:
     )
 
     # Upsert semantics (keep latest by event_time string; ISO-8601 lexicographic works for UTC 'Z' too)
+    # NOTE: Newer Pathway versions use argmax(value_column, id_column)
+    # instead of argmax(column, key=...), so we use event_time as the
+    # value being maximized and return the corresponding latest fields.
     suppliers_latest = suppliers_raw.groupby(suppliers_raw.supplier_id).reduce(
         supplier_id=pw.this.supplier_id,
         event_time=pw.reducers.max(suppliers_raw.event_time),
-        supplier_name=pw.reducers.argmax(suppliers_raw.supplier_name, key=suppliers_raw.event_time),
-        region=pw.reducers.argmax(suppliers_raw.region, key=suppliers_raw.event_time),
-        state=pw.reducers.argmax(suppliers_raw.state, key=suppliers_raw.event_time),
+        supplier_name=pw.reducers.argmax(suppliers_raw.event_time, suppliers_raw.supplier_name),
+        region=pw.reducers.argmax(suppliers_raw.event_time, suppliers_raw.region),
+        state=pw.reducers.argmax(suppliers_raw.event_time, suppliers_raw.state),
         emissions_intensity_kgco2e_per_unit=pw.reducers.argmax(
-            suppliers_raw.emissions_intensity_kgco2e_per_unit, key=suppliers_raw.event_time
+            suppliers_raw.event_time, suppliers_raw.emissions_intensity_kgco2e_per_unit
         ),
-        intensity_version=pw.reducers.argmax(suppliers_raw.intensity_version, key=suppliers_raw.event_time),
+        intensity_version=pw.reducers.argmax(suppliers_raw.event_time, suppliers_raw.intensity_version),
     )
 
     shipments_latest = shipments_raw.groupby(shipments_raw.shipment_id).reduce(
         shipment_id=pw.this.shipment_id,
         event_time=pw.reducers.max(shipments_raw.event_time),
-        period_date=pw.reducers.argmax(shipments_raw.period_date, key=shipments_raw.event_time),
-        origin_city=pw.reducers.argmax(shipments_raw.origin_city, key=shipments_raw.event_time),
-        origin_state=pw.reducers.argmax(shipments_raw.origin_state, key=shipments_raw.event_time),
-        destination_city=pw.reducers.argmax(shipments_raw.destination_city, key=shipments_raw.event_time),
-        destination_state=pw.reducers.argmax(shipments_raw.destination_state, key=shipments_raw.event_time),
-        mode=pw.reducers.argmax(shipments_raw.mode, key=shipments_raw.event_time),
-        distance_km=pw.reducers.argmax(shipments_raw.distance_km, key=shipments_raw.event_time),
-        weight_tons=pw.reducers.argmax(shipments_raw.weight_tons, key=shipments_raw.event_time),
-        sku=pw.reducers.argmax(shipments_raw.sku, key=shipments_raw.event_time),
-        quantity=pw.reducers.argmax(shipments_raw.quantity, key=shipments_raw.event_time),
-        supplier_id=pw.reducers.argmax(shipments_raw.supplier_id, key=shipments_raw.event_time),
-        facility_id=pw.reducers.argmax(shipments_raw.facility_id, key=shipments_raw.event_time),
-        urgent_flag=pw.reducers.argmax(shipments_raw.urgent_flag, key=shipments_raw.event_time),
+        period_date=pw.reducers.argmax(shipments_raw.event_time, shipments_raw.period_date),
+        origin_city=pw.reducers.argmax(shipments_raw.event_time, shipments_raw.origin_city),
+        origin_state=pw.reducers.argmax(shipments_raw.event_time, shipments_raw.origin_state),
+        destination_city=pw.reducers.argmax(shipments_raw.event_time, shipments_raw.destination_city),
+        destination_state=pw.reducers.argmax(shipments_raw.event_time, shipments_raw.destination_state),
+        mode=pw.reducers.argmax(shipments_raw.event_time, shipments_raw.mode),
+        distance_km=pw.reducers.argmax(shipments_raw.event_time, shipments_raw.distance_km),
+        weight_tons=pw.reducers.argmax(shipments_raw.event_time, shipments_raw.weight_tons),
+        sku=pw.reducers.argmax(shipments_raw.event_time, shipments_raw.sku),
+        quantity=pw.reducers.argmax(shipments_raw.event_time, shipments_raw.quantity),
+        supplier_id=pw.reducers.argmax(shipments_raw.event_time, shipments_raw.supplier_id),
+        facility_id=pw.reducers.argmax(shipments_raw.event_time, shipments_raw.facility_id),
+        urgent_flag=pw.reducers.argmax(shipments_raw.event_time, shipments_raw.urgent_flag),
     )
 
     bills_latest = bills_raw.groupby(bills_raw.bill_id).reduce(
         bill_id=pw.this.bill_id,
         event_time=pw.reducers.max(bills_raw.event_time),
-        period_date=pw.reducers.argmax(bills_raw.period_date, key=bills_raw.event_time),
-        facility_id=pw.reducers.argmax(bills_raw.facility_id, key=bills_raw.event_time),
-        state=pw.reducers.argmax(bills_raw.state, key=bills_raw.event_time),
-        kwh=pw.reducers.argmax(bills_raw.kwh, key=bills_raw.event_time),
+        period_date=pw.reducers.argmax(bills_raw.event_time, bills_raw.period_date),
+        facility_id=pw.reducers.argmax(bills_raw.event_time, bills_raw.facility_id),
+        state=pw.reducers.argmax(bills_raw.event_time, bills_raw.state),
+        kwh=pw.reducers.argmax(bills_raw.event_time, bills_raw.kwh),
     )
 
     # Enrich shipments with lane_id
