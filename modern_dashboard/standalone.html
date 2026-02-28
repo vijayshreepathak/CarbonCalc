@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carbon Intelligence Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        /* Embedded CSS for guaranteed loading */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --bg-primary: #0a0a0a;
+            --bg-secondary: #1a1a1a;
+            --bg-glass: rgba(255, 255, 255, 0.1);
+            --text-primary: #ffffff;
+            --text-secondary: #b0b0b0;
+            --accent-primary: #00d4aa;
+            --border-color: rgba(255, 255, 255, 0.1);
+            --gradient-primary: linear-gradient(135deg, #00d4aa 0%, #0099cc 100%);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+        
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
+        }
+        
+        .kpi-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 2rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .kpi-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .kpi-title {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--accent-primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .kpi-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+        }
+        
+        .chart-card {
+            background: var(--bg-glass);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .chart-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            color: var(--text-primary);
+        }
+        
+        .chart-container {
+            height: 400px;
+            width: 100%;
+        }
+        
+        .status {
+            text-align: center;
+            padding: 2rem;
+            background: var(--bg-glass);
+            border-radius: 16px;
+            margin-bottom: 2rem;
+        }
+        
+        .status-live {
+            color: var(--accent-primary);
+            font-weight: 600;
+        }
+        
+        .controls {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .btn {
+            background: var(--gradient-primary);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            font-size: 0.9rem;
+            font-weight: 500;
+            cursor: pointer;
+            margin: 0 0.5rem;
+            transition: transform 0.3s ease;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1><i class="fas fa-leaf"></i> Carbon Intelligence Platform</h1>
+            <p>Real-time Carbon Footprint Monitoring Dashboard</p>
+        </header>
+        
+        <div class="status">
+            <div class="status-live">🟢 System Live</div>
+            <div>Last updated: <span id="lastUpdate">Loading...</span></div>
+        </div>
+        
+        <div class="controls">
+            <button class="btn" onclick="dashboard.loadData()">
+                <i class="fas fa-sync-alt"></i> Refresh Data
+            </button>
+            <button class="btn" onclick="dashboard.toggleAutoRefresh()">
+                <i class="fas fa-play"></i> <span id="autoRefreshBtn">Auto Refresh</span>
+            </button>
+        </div>
+        
+        <!-- KPI Cards -->
+        <div class="kpi-grid">
+            <div class="kpi-card">
+                <div class="kpi-title">Total Emissions</div>
+                <div class="kpi-value" id="totalEmissions">Loading...</div>
+                <div class="kpi-subtitle">kg CO2e</div>
+            </div>
+            
+            <div class="kpi-card">
+                <div class="kpi-title">Total Activities</div>
+                <div class="kpi-value" id="totalActivities">Loading...</div>
+                <div class="kpi-subtitle">Tracked events</div>
+            </div>
+            
+            <div class="kpi-card">
+                <div class="kpi-title">Transport Emissions</div>
+                <div class="kpi-value" id="transportEmissions">Loading...</div>
+                <div class="kpi-subtitle">kg CO2e</div>
+            </div>
+            
+            <div class="kpi-card">
+                <div class="kpi-title">Electricity Emissions</div>
+                <div class="kpi-value" id="electricityEmissions">Loading...</div>
+                <div class="kpi-subtitle">kg CO2e</div>
+            </div>
+        </div>
+        
+        <!-- Charts -->
+        <div class="chart-card">
+            <div class="chart-title">Daily Emissions Trend</div>
+            <div class="chart-container" id="trendChart"></div>
+        </div>
+        
+        <div class="chart-card">
+            <div class="chart-title">Emissions by Category</div>
+            <div class="chart-container" id="categoryChart"></div>
+        </div>
+        
+        <div class="chart-card">
+            <div class="chart-title">Transport Modes</div>
+            <div class="chart-container" id="transportChart"></div>
+        </div>
+    </div>
+    
+    <script>
+        // Embedded JavaScript for guaranteed execution
+        class CarbonDashboard {
+            constructor() {
+                this.apiBase = 'http://localhost:8001';
+                this.autoRefresh = true;
+                this.refreshInterval = null;
+                console.log('Carbon Dashboard initialized');
+                this.init();
+            }
+            
+            init() {
+                this.loadData();
+                this.startAutoRefresh();
+            }
+            
+            async loadData() {
+                try {
+                    console.log('Loading data from API...');
+                    const response = await fetch(`${this.apiBase}/api/summary`);
+                    
+                    if (!response.ok) {
+                        throw new Error(`API error: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    console.log('Data loaded successfully:', data);
+                    this.updateDashboard(data);
+                    
+                } catch (error) {
+                    console.error('Failed to load data:', error);
+                    this.showMockData();
+                }
+            }
+            
+            updateDashboard(data) {
+                // Update KPIs
+                const summary = data.summary;
+                document.getElementById('totalEmissions').textContent = this.formatNumber(summary.totalEmissions);
+                document.getElementById('totalActivities').textContent = summary.totalActivities.toLocaleString();
+                document.getElementById('transportEmissions').textContent = this.formatNumber(summary.transportEmissions);
+                document.getElementById('electricityEmissions').textContent = this.formatNumber(summary.electricityEmissions);
+                document.getElementById('lastUpdate').textContent = new Date().toLocaleTimeString();
+                
+                // Update charts
+                this.createTrendChart(data.trendData);
+                this.createCategoryChart(data.categories);
+                this.createTransportChart(data.transportModes);
+            }
+            
+            createTrendChart(data) {
+                const trace = {
+                    x: data.map(d => d.date),
+                    y: data.map(d => d.total),
+                    type: 'scatter',
+                    mode: 'lines+markers',
+                    line: { color: '#00d4aa', width: 3 },
+                    marker: { color: '#00d4aa', size: 6 },
+                    name: 'Daily Emissions'
+                };
+                
+                const layout = {
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    font: { color: '#ffffff' },
+                    xaxis: { gridcolor: 'rgba(255,255,255,0.1)', color: '#b0b0b0' },
+                    yaxis: { gridcolor: 'rgba(255,255,255,0.1)', color: '#b0b0b0', title: 'kg CO2e' },
+                    margin: { t: 20, r: 20, b: 40, l: 60 },
+                    showlegend: false
+                };
+                
+                Plotly.newPlot('trendChart', [trace], layout, { responsive: true, displayModeBar: false });
+            }
+            
+            createCategoryChart(data) {
+                const trace = {
+                    labels: Object.keys(data),
+                    values: Object.values(data),
+                    type: 'pie',
+                    hole: 0.6,
+                    marker: { colors: ['#00d4aa', '#ffab00', '#667eea'] },
+                    textinfo: 'label+percent',
+                    textfont: { color: '#ffffff' }
+                };
+                
+                const layout = {
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    font: { color: '#ffffff' },
+                    margin: { t: 20, r: 20, b: 20, l: 20 },
+                    showlegend: false
+                };
+                
+                Plotly.newPlot('categoryChart', [trace], layout, { responsive: true, displayModeBar: false });
+            }
+            
+            createTransportChart(data) {
+                const trace = {
+                    x: Object.keys(data),
+                    y: Object.values(data),
+                    type: 'bar',
+                    marker: { color: ['#00d4aa', '#667eea', '#ffab00', '#f5576c'] }
+                };
+                
+                const layout = {
+                    plot_bgcolor: 'rgba(0,0,0,0)',
+                    paper_bgcolor: 'rgba(0,0,0,0)',
+                    font: { color: '#ffffff' },
+                    xaxis: { color: '#b0b0b0' },
+                    yaxis: { gridcolor: 'rgba(255,255,255,0.1)', color: '#b0b0b0', title: 'kg CO2e' },
+                    margin: { t: 20, r: 20, b: 40, l: 60 },
+                    showlegend: false
+                };
+                
+                Plotly.newPlot('transportChart', [trace], layout, { responsive: true, displayModeBar: false });
+            }
+            
+            showMockData() {
+                console.log('Showing mock data as fallback');
+                const mockData = {
+                    summary: {
+                        totalEmissions: 50000,
+                        totalActivities: 1500,
+                        transportEmissions: 30000,
+                        electricityEmissions: 20000
+                    },
+                    trendData: [
+                        { date: '2026-02-25', total: 1200 },
+                        { date: '2026-02-26', total: 1400 },
+                        { date: '2026-02-27', total: 1100 },
+                        { date: '2026-02-28', total: 1600 }
+                    ],
+                    categories: {
+                        'Transport': 30000,
+                        'Electricity': 20000
+                    },
+                    transportModes: {
+                        'Road': 15000,
+                        'Rail': 8000,
+                        'Air': 5000,
+                        'Sea': 2000
+                    }
+                };
+                this.updateDashboard(mockData);
+            }
+            
+            formatNumber(num) {
+                if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+                if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+                return num.toFixed(1);
+            }
+            
+            toggleAutoRefresh() {
+                this.autoRefresh = !this.autoRefresh;
+                const btn = document.getElementById('autoRefreshBtn');
+                
+                if (this.autoRefresh) {
+                    this.startAutoRefresh();
+                    btn.textContent = 'Stop Auto Refresh';
+                } else {
+                    this.stopAutoRefresh();
+                    btn.textContent = 'Start Auto Refresh';
+                }
+            }
+            
+            startAutoRefresh() {
+                this.stopAutoRefresh();
+                if (this.autoRefresh) {
+                    this.refreshInterval = setInterval(() => {
+                        this.loadData();
+                    }, 5000); // 5 second refresh
+                }
+            }
+            
+            stopAutoRefresh() {
+                if (this.refreshInterval) {
+                    clearInterval(this.refreshInterval);
+                    this.refreshInterval = null;
+                }
+            }
+        }
+        
+        // Initialize dashboard when page loads
+        let dashboard;
+        window.addEventListener('load', () => {
+            console.log('Page loaded, initializing dashboard...');
+            dashboard = new CarbonDashboard();
+        });
+    </script>
+</body>
+</html>

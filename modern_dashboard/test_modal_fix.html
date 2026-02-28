@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modal Test</title>
+    <style>
+        body { 
+            margin: 0; 
+            padding: 20px; 
+            background: #1a1a1a; 
+            color: white; 
+            font-family: Arial, sans-serif; 
+        }
+        .test-content { 
+            height: 200vh; 
+            background: linear-gradient(45deg, #2a2a2a, #3a3a3a); 
+            padding: 20px; 
+        }
+        .info-btn { 
+            position: fixed; 
+            top: 20px; 
+            right: 20px; 
+            background: #00d4aa; 
+            border: none; 
+            border-radius: 50%; 
+            width: 50px; 
+            height: 50px; 
+            color: white; 
+            font-size: 20px; 
+            cursor: pointer; 
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 2000;
+            left: 0;
+            top: 0;
+            width: 100vw;
+            height: 100vh;
+            background: rgba(0, 0, 0, 0.75);
+            backdrop-filter: blur(8px);
+        }
+        .modal.show { display: flex; align-items: center; justify-content: center; }
+        .modal-content { 
+            background: #2a2a2a; 
+            border-radius: 20px; 
+            padding: 20px; 
+            max-width: 500px; 
+            width: 90%; 
+        }
+    </style>
+</head>
+<body>
+    <div class="test-content">
+        <h1>Test Page for Modal Overlay</h1>
+        <p>This is a test page to verify the modal appears as a proper overlay without disrupting the layout.</p>
+        <p>Click the info button (i) in the top-right corner to test the modal.</p>
+        <p>The modal should appear as a floating overlay over this content.</p>
+    </div>
+    
+    <button class="info-btn" onclick="openModal()">i</button>
+    
+    <div id="testModal" class="modal" onclick="closeModal()">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h2>Modal Test ✓</h2>
+            <p>This modal is working correctly as an overlay!</p>
+            <p>It should not disrupt the page layout and should appear floating above the content.</p>
+            <button onclick="closeModal()" style="background: #00d4aa; border: none; padding: 10px 20px; border-radius: 8px; color: white; cursor: pointer;">Close</button>
+        </div>
+    </div>
+    
+    <script>
+        function openModal() {
+            const modal = document.getElementById('testModal');
+            modal.style.display = 'flex';
+            setTimeout(() => modal.classList.add('show'), 10);
+            document.body.style.overflow = 'hidden';
+        }
+        
+        function closeModal() {
+            const modal = document.getElementById('testModal');
+            modal.classList.remove('show');
+            setTimeout(() => {
+                modal.style.display = 'none';
+                document.body.style.overflow = '';
+            }, 300);
+        }
+    </script>
+</body>
+</html>

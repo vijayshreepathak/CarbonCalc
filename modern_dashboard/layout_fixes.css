@@ -1,0 +1,71 @@
+/* Emergency layout fixes - inject this CSS for immediate fixes */
+
+/* Ensure charts don't overflow */
+.chart-container {
+    width: 100% !important;
+    height: 350px !important;
+    overflow: hidden !important;
+    position: relative !important;
+}
+
+/* Fix wide chart height */
+.chart-card.wide .chart-container {
+    height: 400px !important;
+}
+
+/* Fix chart row spacing */
+.charts-row {
+    display: grid !important;
+    grid-template-columns: 1fr 1fr !important;
+    gap: 1.5rem !important;
+    margin-bottom: 2rem !important;
+}
+
+/* Ensure plotly charts fit properly */
+.plotly-graph-div {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Fix activity feed height */
+.activity-feed {
+    max-height: 450px !important;
+    overflow-y: auto !important;
+}
+
+/* Remove any unwanted margins */
+.chart-card {
+    margin: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+}
+
+/* Fix KPI grid alignment */
+.kpi-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+    gap: 1.5rem !important;
+    margin-bottom: 2rem !important;
+}
+
+/* Ensure proper spacing */
+.content-section {
+    padding: 2rem !important;
+    max-width: 100% !important;
+    overflow-x: hidden !important;
+}
+
+/* Mobile fixes */
+@media (max-width: 768px) {
+    .charts-row {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .chart-container {
+        height: 280px !important;
+    }
+    
+    .chart-card.wide .chart-container {
+        height: 320px !important;
+    }
+}

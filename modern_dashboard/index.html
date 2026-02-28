@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Carbon Intelligence Platform</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-leaf"></i>
+                    <h2>Carbon Intel</h2>
+                </div>
+            </div>
+            
+            <div class="nav-menu">
+                <div class="nav-item active" data-section="overview">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Overview</span>
+                </div>
+                <div class="nav-item" data-section="emissions">
+                    <i class="fas fa-industry"></i>
+                    <span>Emissions</span>
+                </div>
+                <div class="nav-item" data-section="transport">
+                    <i class="fas fa-truck"></i>
+                    <span>Transport</span>
+                </div>
+                <div class="nav-item" data-section="energy">
+                    <i class="fas fa-bolt"></i>
+                    <span>Energy</span>
+                </div>
+                <div class="nav-item" data-section="hotspots">
+                    <i class="fas fa-fire"></i>
+                    <span>Hotspots</span>
+                </div>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="system-status">
+                    <div class="status-indicator">
+                        <div class="status-dot live"></div>
+                        <span>System Live</span>
+                    </div>
+                    <div class="last-update">
+                        <small>Last update: <span id="lastUpdate">--</span></small>
+                    </div>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Header -->
+            <header class="header">
+                <div class="header-title">
+                    <h1>Real-time Carbon Footprint Monitoring</h1>
+                    <p>Advanced environmental impact analytics and tracking</p>
+                </div>
+                
+                <div class="header-controls">
+                    <div class="control-group">
+                        <label>Auto Refresh</label>
+                        <div class="toggle-switch">
+                            <input type="checkbox" id="autoRefresh" checked>
+                            <span class="slider"></span>
+                        </div>
+                    </div>
+                    
+                    <div class="control-group">
+                        <label>Refresh Rate</label>
+                        <select id="refreshRate">
+                            <option value="2">2s</option>
+                            <option value="5">5s</option>
+                            <option value="10">10s</option>
+                        </select>
+                    </div>
+                    
+                    <button class="refresh-btn" id="manualRefresh">
+                        <i class="fas fa-sync-alt"></i>
+                        Refresh
+                    </button>
+                    
+                    <button class="info-btn" id="infoBtn" title="Government Regulations & Global Standards">
+                        <i class="fas fa-info-circle"></i>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Overview Section -->
+            <section id="overview" class="content-section active">
+                <div class="section-header">
+                    <h2>Carbon Footprint Overview</h2>
+                    <p>Real-time monitoring of your organization's complete carbon emissions profile</p>
+                    <div class="section-info-btn">
+                        i
+                        <div class="info-tooltip">
+                            <h4>Overview Dashboard</h4>
+                            <p>This module provides a comprehensive view of your carbon footprint:</p>
+                            <ul>
+                                <li>Real-time emission metrics and KPIs</li>
+                                <li>Daily emission trends and patterns</li>
+                                <li>Breakdown by emission categories</li>
+                                <li>Transport mode analysis</li>
+                                <li>Recent activity monitoring</li>
+                                <li>Regulatory compliance tracking</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- KPI Cards -->
+                <div class="kpi-grid">
+                    <div class="kpi-card primary">
+                        <div class="kpi-icon">
+                            <i class="fas fa-globe"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <div class="kpi-value" id="totalEmissions">0</div>
+                            <div class="kpi-label">Total Emissions (kg CO2e)</div>
+                            <div class="kpi-trend positive">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>Live</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-card secondary">
+                        <div class="kpi-icon">
+                            <i class="fas fa-activity"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <div class="kpi-value" id="totalActivities">0</div>
+                            <div class="kpi-label">Total Activities</div>
+                            <div class="kpi-trend">
+                                <i class="fas fa-pulse"></i>
+                                <span>Active</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-card accent">
+                        <div class="kpi-icon">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <div class="kpi-value" id="transportEmissions">0</div>
+                            <div class="kpi-label">Transport (kg CO2e)</div>
+                            <div class="kpi-trend">
+                                <i class="fas fa-road"></i>
+                                <span id="transportPercent">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-card warning">
+                        <div class="kpi-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <div class="kpi-value" id="electricityEmissions">0</div>
+                            <div class="kpi-label">Electricity (kg CO2e)</div>
+                            <div class="kpi-trend">
+                                <i class="fas fa-flash"></i>
+                                <span id="electricityPercent">0%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Grid -->
+                <div class="chart-card wide">
+                    <div class="chart-header">
+                        <h3>Daily Emissions Trend</h3>
+                        <div class="chart-controls">
+                            <button class="chart-control active" data-period="7d">7D</button>
+                            <button class="chart-control" data-period="30d">30D</button>
+                            <button class="chart-control" data-period="90d">90D</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <div id="trendChart"></div>
+                    </div>
+                </div>
+                
+                <div class="charts-row">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>Emissions by Category</h3>
+                        </div>
+                        <div class="chart-container">
+                            <div id="categoryPieChart"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>Transport Modes</h3>
+                        </div>
+                        <div class="chart-container">
+                            <div id="transportModeChart"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="activity-section">
+                    <div class="section-header">
+                        <h3>Recent Activity</h3>
+                        <div class="activity-filters">
+                            <button class="filter-btn active" data-type="all">All</button>
+                            <button class="filter-btn" data-type="shipments">Shipments</button>
+                            <button class="filter-btn" data-type="electricity">Electricity</button>
+                        </div>
+                    </div>
+                    
+                    <div class="activity-feed" id="activityFeed">
+                        <!-- Activity items will be populated by JavaScript -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Emissions Section -->
+            <section id="emissions" class="content-section">
+                <div class="section-header">
+                    <h2>Emissions Analysis</h2>
+                    <p>Detailed breakdown of carbon emissions across all sources</p>
+                    <div class="section-info-btn">
+                        i
+                        <div class="info-tooltip">
+                            <h4>Emissions Analysis Module</h4>
+                            <p>Deep dive into emission sources and patterns:</p>
+                            <ul>
+                                <li>Scope 1, 2, and 3 emissions breakdown</li>
+                                <li>Monthly emission trends analysis</li>
+                                <li>Emission sources categorization</li>
+                                <li>SEBI BRSR compliance metrics</li>
+                                <li>Year-over-year comparison</li>
+                                <li>Sector benchmarking</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="kpi-grid">
+                    <div class="kpi-card primary">
+                        <div class="kpi-icon">
+                            <i class="fas fa-industry"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <div class="kpi-value">
+                                <span id="totalEmissions">32.1M</span>
+                                <span class="unit">kg CO2e</span>
+                            </div>
+                            <div class="kpi-label">Total Emissions</div>
+                            <div class="kpi-trend up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>Live</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-card">
+                        <div class="kpi-icon">
+                            <i class="fas fa-chart-pie"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <div class="kpi-value">
+                                <span id="scopeBreakdown">65%</span>
+                            </div>
+                            <div class="kpi-label">Scope 3 Emissions</div>
+                            <div class="kpi-trend neutral">
+                                <span>Upstream</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-card">
+                        <div class="kpi-icon">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <div class="kpi-value">
+                                <span id="dailyEmissions">1.2M</span>
+                                <span class="unit">kg CO2e</span>
+                            </div>
+                            <div class="kpi-label">Today's Emissions</div>
+                            <div class="kpi-trend up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>12%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chart-card wide">
+                    <div class="chart-header">
+                        <h3>Emissions by Scope</h3>
+                        <div class="chart-controls">
+                            <button class="chart-control active" data-scope="all">All</button>
+                            <button class="chart-control" data-scope="scope1">Scope 1</button>
+                            <button class="chart-control" data-scope="scope2">Scope 2</button>
+                            <button class="chart-control" data-scope="scope3">Scope 3</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <div id="emissionsScopeChart"></div>
+                    </div>
+                </div>
+                
+                <div class="charts-row">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>Monthly Trend</h3>
+                        </div>
+                        <div class="chart-container">
+                            <div id="monthlyEmissionsChart"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>Emission Sources</h3>
+                        </div>
+                        <div class="chart-container">
+                            <div id="emissionSourcesChart"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Transport Section -->
+            <section id="transport" class="content-section">
+                <div class="section-header">
+                    <h2>Transport & Logistics</h2>
+                    <p>Carbon footprint from transportation and supply chain logistics</p>
+                    <div class="section-info-btn">
+                        i
+                        <div class="info-tooltip">
+                            <h4>Transport & Logistics Module</h4>
+                            <p>Comprehensive transportation emission tracking:</p>
+                            <ul>
+                                <li>Multi-modal transport emissions (Road, Rail, Air, Sea)</li>
+                                <li>Route efficiency optimization</li>
+                                <li>Fleet utilization analytics</li>
+                                <li>GLEC Framework compliance</li>
+                                <li>Distance and weight-based calculations</li>
+                                <li>Supply chain carbon footprint</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="kpi-grid">
+                    <div class="kpi-card primary">
+                        <div class="kpi-icon">
+                            <i class="fas fa-truck"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <div class="kpi-value">
+                                <span id="transportEmissions">11.4M</span>
+                                <span class="unit">kg CO2e</span>
+                            </div>
+                            <div class="kpi-label">Transport Emissions</div>
+                            <div class="kpi-trend up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>35%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-card">
+                        <div class="kpi-icon">
+                            <i class="fas fa-route"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <div class="kpi-value">
+                                <span id="totalDistance">2.8M</span>
+                                <span class="unit">km</span>
+                            </div>
+                            <div class="kpi-label">Total Distance</div>
+                            <div class="kpi-trend neutral">
+                                <span>This Month</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-card">
+                        <div class="kpi-icon">
+                            <i class="fas fa-weight-hanging"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <div class="kpi-value">
+                                <span id="totalWeight">156K</span>
+                                <span class="unit">tonnes</span>
+                            </div>
+                            <div class="kpi-label">Cargo Weight</div>
+                            <div class="kpi-trend up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>8%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chart-card wide">
+                    <div class="chart-header">
+                        <h3>Transport Mode Emissions</h3>
+                        <div class="chart-controls">
+                            <button class="chart-control active" data-transport="all">All</button>
+                            <button class="chart-control" data-transport="road">Road</button>
+                            <button class="chart-control" data-transport="rail">Rail</button>
+                            <button class="chart-control" data-transport="air">Air</button>
+                            <button class="chart-control" data-transport="sea">Sea</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <div id="transportModeEmissionsChart"></div>
+                    </div>
+                </div>
+                
+                <div class="charts-row">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>Route Efficiency</h3>
+                        </div>
+                        <div class="chart-container">
+                            <div id="routeEfficiencyChart"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>Fleet Utilization</h3>
+                        </div>
+                        <div class="chart-container">
+                            <div id="fleetUtilizationChart"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Energy Section -->
+            <section id="energy" class="content-section">
+                <div class="section-header">
+                    <h2>Energy Consumption</h2>
+                    <p>Electricity usage and energy-related carbon emissions</p>
+                    <div class="section-info-btn">
+                        i
+                        <div class="info-tooltip">
+                            <h4>Energy Consumption Module</h4>
+                            <p>Detailed energy usage and emissions tracking:</p>
+                            <ul>
+                                <li>Real-time electricity consumption monitoring</li>
+                                <li>Peak usage hours analysis</li>
+                                <li>Renewable vs. grid energy breakdown</li>
+                                <li>Energy efficiency metrics</li>
+                                <li>Carbon intensity of electricity</li>
+                                <li>Net Zero 2070 progress tracking</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="kpi-grid">
+                    <div class="kpi-card primary">
+                        <div class="kpi-icon">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <div class="kpi-value">
+                                <span id="energyEmissions">1.1M</span>
+                                <span class="unit">kg CO2e</span>
+                            </div>
+                            <div class="kpi-label">Energy Emissions</div>
+                            <div class="kpi-trend neutral">
+                                <span>3%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-card">
+                        <div class="kpi-icon">
+                            <i class="fas fa-plug"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <div class="kpi-value">
+                                <span id="totalConsumption">2.2M</span>
+                                <span class="unit">kWh</span>
+                            </div>
+                            <div class="kpi-label">Total Consumption</div>
+                            <div class="kpi-trend up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>5%</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="kpi-card">
+                        <div class="kpi-icon">
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <div class="kpi-content">
+                            <div class="kpi-value">
+                                <span id="renewablePercent">12%</span>
+                            </div>
+                            <div class="kpi-label">Renewable Energy</div>
+                            <div class="kpi-trend up">
+                                <i class="fas fa-arrow-up"></i>
+                                <span>Target: 25%</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="chart-card wide">
+                    <div class="chart-header">
+                        <h3>Energy Consumption Pattern</h3>
+                        <div class="chart-controls">
+                            <button class="chart-control active" data-energy="hourly">Hourly</button>
+                            <button class="chart-control" data-energy="daily">Daily</button>
+                            <button class="chart-control" data-energy="monthly">Monthly</button>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <div id="energyConsumptionChart"></div>
+                    </div>
+                </div>
+                
+                <div class="charts-row">
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>Energy Sources</h3>
+                        </div>
+                        <div class="chart-container">
+                            <div id="energySourcesChart"></div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-card">
+                        <div class="chart-header">
+                            <h3>Peak Usage Hours</h3>
+                        </div>
+                        <div class="chart-container">
+                            <div id="peakUsageChart"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Hotspots Section -->
+            <section id="hotspots" class="content-section">
+                <div class="section-header">
+                    <h2>Emission Hotspots</h2>
+                    <p>Identify high-impact sources and optimization opportunities</p>
+                    <div class="section-info-btn">
+                        i
+                        <div class="info-tooltip">
+                            <h4>Emission Hotspots Module</h4>
+                            <p>Pinpoint areas with highest carbon impact:</p>
+                            <ul>
+                                <li>Top emission-generating suppliers</li>
+                                <li>High-impact transportation routes</li>
+                                <li>Carbon-intensive products (SKUs)</li>
+                                <li>Energy-consuming facilities</li>
+                                <li>Priority areas for reduction efforts</li>
+                                <li>Cost-effective optimization opportunities</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="hotspots-grid">
+                    <div class="hotspot-card">
+                        <h3>Top Suppliers</h3>
+                        <div id="supplierHotspots" class="hotspot-list"></div>
+                    </div>
+                    
+                    <div class="hotspot-card">
+                        <h3>Top Routes</h3>
+                        <div id="routeHotspots" class="hotspot-list"></div>
+                    </div>
+                    
+                    <div class="hotspot-card">
+                        <h3>Top SKUs</h3>
+                        <div id="skuHotspots" class="hotspot-list"></div>
+                    </div>
+                    
+                    <div class="hotspot-card">
+                        <h3>Top Facilities</h3>
+                        <div id="facilityHotspots" class="hotspot-list"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Info Modal -->
+    <div id="infoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Government Regulations & Global Standards</h2>
+                <span class="close-btn" id="closeInfoModal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="regulation-section">
+                    <h3><i class="fas fa-landmark"></i> SEBI BRSR (Business Responsibility and Sustainability Reporting)</h3>
+                    <p><strong>Overview:</strong> A mandatory framework introduced by the Securities and Exchange Board of India for the top 1,000 listed entities to report on ESG (Environmental, Social, and Governance) performance.</p>
+                    <p><strong>Value Chain Disclosure:</strong> Starting from FY 2024-25, SEBI introduced "BRSR Core" which includes mandatory disclosures for the value chain (Scope 3), impacting upstream and downstream partners.</p>
+                    <p><strong>CarbonIntel Alignment:</strong> Our platform automates the capture of the 98 mandatory "essential indicators," ensuring reports are audit-ready and compliant with SEBI's evolving transparency requirements.</p>
+                    <p><strong>Official Document:</strong> <a href="#" target="_blank">SEBI BRSR Framework & Guidance Note</a></p>
+                </div>
+                
+                <div class="regulation-section">
+                    <h3><i class="fas fa-globe"></i> GLEC Framework (Global Logistics Emissions Council) v3.2</h3>
+                    <p><strong>Overview:</strong> The world's primary industry-led methodology for harmonizing the calculation and reporting of greenhouse gas (GHG) emissions across multi-modal supply chains (road, rail, air, and sea).</p>
+                    <p><strong>ISO 14083 Alignment:</strong> GLEC v3.2 is fully integrated with the ISO 14083 standard, providing a globally recognized foundation for logistics emission transparency.</p>
+                    <p><strong>CarbonIntel Alignment:</strong> We use GLEC-standardized emission factors to normalize inconsistent Indian logistics data, ensuring that your carbon footprint is comparable to international benchmarks.</p>
+                    <p><strong>Official Document:</strong> <a href="#" target="_blank">GLEC Framework v3.2 Official Guide</a></p>
+                </div>
+                
+                <div class="regulation-section">
+                    <h3><i class="fas fa-flag-checkered"></i> India's Net Zero 2070 Target</h3>
+                    <p><strong>Overview:</strong> India has committed to achieving net-zero emissions by 2070, with intermediate goals of reducing carbon intensity by 45% by 2030.</p>
+                    <p><strong>CarbonIntel Alignment:</strong> Our platform tracks progress towards these national targets, providing benchmarking against sectoral goals and identifying actionable reduction opportunities.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Loading carbon data...</p>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="app.js"></script>
+</body>
+</html>
