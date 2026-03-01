@@ -343,7 +343,7 @@ flowchart TD
     
     subgraph "Calculation Engine"
         CALC --> TRANS[Transport Emissions\n distance * weight * factor]
-        CALC --> ENERGY[Energy Emissions\n kWh * grid_factor * (1 - renewable_percent)]
+        CALC --> ENERGY[Energy Emissions\n kWh * grid_factor * remaining_renewable_share]
         CALC --> SCOPE[Scope Categorization\n 1, 2, 3 classification]
     end
     
